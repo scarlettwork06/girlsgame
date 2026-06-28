@@ -3,154 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夢幻光之美少女紙娃娃試衣間</title>
+    <title>夢幻光之美少女 - 2D立體紙娃娃更衣室</title>
     <style>
-        /* 網頁大底圖：柔和粉紅色 */
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #ffebf0;
-            font-family: 'Microsoft JhengHei', sans-serif;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
+        * {
+            box-sizing: border-box;
             user-select: none;
         }
-
-        /* 左側：控制面板與分類按鈕 */
-        #control-panel {
-            width: 280px;
-            background: rgba(255, 255, 255, 0.85);
-            border-right: 3px solid #ffb6c1;
+        body {
+            background-color: #ffedf2;
+            font-family: "Microsoft JhengHei", sans-serif;
+            margin: 0;
             padding: 20px;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.05);
             display: flex;
-            flex-direction: column;
-            gap: 20px;
-            z-index: 10;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
 
-        .panel-title {
-            color: #d81b60;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            border-bottom: 2px dashed #ffb6c1;
-            padding-bottom: 10px;
-        }
-
-        .category-title {
-            font-weight: bold;
-            color: #c2185b;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        button {
-            padding: 10px;
-            background: linear-gradient(135deg, #fff0f3, #ffb6c1);
-            border: 1px solid #ff8da1;
-            color: #d81b60;
-            border-radius: 15px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        button:hover {
-            background: linear-gradient(135deg, #ff8da1, #ff6584);
-            color: white;
-            transform: scale(1.05);
-        }
-
-        /* 右側：主舞台（粉紅衣櫃與鏡子） */
-        #stage {
-            flex: 1;
+        /* 遊戲主要容器 */
+        #game-container {
+            width: 1200px;
+            height: 750px;
+            background: linear-gradient(135deg, #ffdee9 0%, #b5fffc 100%);
+            border: 8px solid #ffb6c1;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(255, 182, 193, 0.4);
             position: relative;
-            background: #fff0f3;
-            border: 10px solid #ffb6c1;
-            margin: 10px;
-            border-radius: 20px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
-        }
-
-        /* 粉紅大衣櫃 */
-        #wardrobe {
-            position: absolute;
-            left: 50px;
-            bottom: 40px;
-            width: 450px;
-            height: 500px;
-            background-color: #ffccd5;
-            border: 8px solid #ff99aa;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        .wardrobe-bar {
-            width: 100%;
-            height: 10px;
-            background: #e0e0e0;
-            margin-top: 30px;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        /* 豪華大鏡子 */
-        #magic-mirror {
-            position: absolute;
-            right: 60px;
-            bottom: 60px;
-            width: 220px;
-            height: 460px;
-            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
-            border: 12px solid #ffd700; /* 金色雕花邊框 */
-            border-radius: 110px 110px 20px 20px; /* 拱門造型 */
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15), inset 0 0 20px rgba(255,255,255,0.6);
-        }
-        .mirror-title {
-            text-align: center;
-            color: #b78a00;
-            font-weight: bold;
-            font-size: 14px;
-            margin-top: 15px;
-        }
-        /* 鏡子內部的倒影容器 */
-        #mirror-reflection {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
             overflow: hidden;
         }
 
-        /* 紙娃娃人物容器 */
-        .doll {
+        /* 頂部夢幻標題 */
+        .header-banner {
+            width: 100%;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(5px);
+            border-bottom: 3px dashed #ffb6c1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: absolute;
-            width: 140px;
-            height: 320px;
-            cursor: move;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+        .header-banner h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #ff4081;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+            letter-spacing: 2px;
+        }
+
+        /* 左側：粉紅衣櫃與分類 */
+        .wardrobe-panel {
+            position: absolute;
+            left: 20px;
+            top: 80px;
+            width: 420px;
+            height: 640px;
+            background-color: #fff0f5;
+            border: 4px solid #ffb6c1;
+            border-radius: 20px;
+            box-shadow: inset 0 0 15px rgba(255, 182, 193, 0.5), 0 5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
             z-index: 5;
-            transition: transform 0.1s;
-        }
-        
-        /* 娃娃選中時的魔法光暈 */
-        .doll.active {
-            filter: drop-shadow(0 0 8px #ff4081);
         }
 
-        /* 雙面視角控制 */
-        .doll .front-look { display: block; }
-        .doll .back-look { display: none; }
+        /* 衣櫃分類標籤 */
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            background-color: #ffe4e1;
+            border-radius: 16px 16px 0 0;
+            border-bottom: 3px solid #ffb6c1;
+            gap: 5px;
+        }
+        .tab-btn {
+            flex: 1;
+            min-width: 60px;
+            padding: 8px 5px;
+            background: white;
+            border: 2px solid #ffb6c1;
+            border-radius: 10px;
+            color: #ff69b4;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background: #ff69b4;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 3px 6px rgba(255, 105, 180, 0.3);
+        }
 
-        /* 當娃娃處於背對狀態時 */
-        .doll.turned-around .front-look { display: none; }
-        .doll.turned-around .back-look { display: block
+        /* 衣櫃內部衣服物件展示區 */
+        .wardrobe-content {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            align-content: start;
+        }
+        .wardrobe-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .wardrobe-content::-webkit-scrollbar-thumb {
+            background: #ffb6c1;
+            border-radius: 4px;
+        }
+
+        /* 衣服卡片物件 */
+        .item-card {
+            background: white;
+            border: 2px solid #ffe4e1;
+            border-radius: 12px;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 110px;
+        }
+        .item-card:hover {
+            transform: translateY(-3px);
+            border-color: #ff69b4;
+            box-shadow: 0 5px 10px rgba(255, 182, 193, 0.5);
+        }
+        .item-card svg {
+            width: 70px;
+            height: 70px;
+        }
+        .item-name {
+            font-size: 11px;
+            color: #ff69b4;
+            margin-top: 5px;
+            text-align: center;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        /* 中間：舞台與模特兒更衣區 */
+        .stage-panel {
+            position: absolute;
+            left: 460px;
+            top: 80px;
+            width: 440px;
+            height: 640px;
+        }
+
+        /* 提示選取模特兒的泡泡 */
+        .instruction-tip {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.85);
+            padding: 6px 15px;
+            border-radius: 20px;
+            border: 2px solid #ff69b4;
+            color: #ff4081;
+            font-size: 13px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        /* 模特兒容器 */
+        .model-container {
+            position: absolute;
+            width: 180px;
+            height: 380px;
+            cursor: move;
+            transition: filter 0.2s;
+            z-index: 2;
+        }
+        /* 被選取的模特兒發光效果 */
+        .model-container.active {
+            filter: drop-shadow(0 0 12px #ff1493);
+        }
+        .model-container.active::after {
+            content: "★ 正在裝扮 ★";
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff1493;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* 模特兒內各個圖層（絕對定位疊加） */
+        .layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* 正背面切換顯示邏輯 */
+        .model-container.back-facing .front-element { display: none !important; }
+        .model-container.back-facing .back-element { display: block !important; }
+        .model-container:not(.back-facing) .front-element { display: block !important; }
+        .model-container:not(.back-facing) .back-element { display: none !important; }
+
+        /* 右側：全身魔幻大鏡子 */
+        .mirror-panel {
+            position: absolute;
+            right: 20px;
+            top: 80px;
+            width: 280px;
+            height: 640px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 6px double #ffd700;
+            border-radius: 140px 140px 20px 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .mirror-frame {
+            width: 92%;
+            height: 96%;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border: 4px solid #fff;
+            border-radius: 130px 130px 15px 15px;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,184,212,0.4);
+        }
+        .mirror-frame::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) 10%, transparent 10%, transparent 15%, rgba(255,255,255,0.2) 15%, transparent 30%);
+            z-index: 3;
+            pointer-events: none;
+            border-radius: 130px 130px 15px 15px;
+        }
+        /* 鏡中倒影容器 */
+        #mirror-reflection-zone {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform: scaleX(-1); /* 水平翻轉模擬鏡像 */
+        }
+        .mirror-tip {
+            position: absolute;
+            bottom: 15px;
