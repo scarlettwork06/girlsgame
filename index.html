@@ -1,1 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>夢幻粉紅衣櫃 - 互動換裝遊戲</title>
+<style>
+  /* --- 基礎版面樣式 --- */
+  body {
+    background-color: #ffe5ec;
+    font-family: 'Microsoft JhengHei', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 20px;
+    user-select: none;
+  }
 
+  h1 {
+    color: #ff4d6d;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .game-container {
+    display: flex;
+    gap: 40px;
+    background: #fff0f3;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(255, 77, 109, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* --- 粉紅衣櫃區 --- */
+  .wardrobe-section {
+    width: 320px;
+    background: #ffb3c1;
+    border: 4px solid #ff758f;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  .category-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .category-buttons button {
+    background: #fff;
+    border: 2px solid #ff758f;
+    color: #ff4d6d;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+
+  .category-buttons button.active, .category-buttons button:hover {
+    background: #ff4d6d;
+    color: white;
+  }
+
+  .clothes-shelf {
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    flex-grow: 1;
+    min-height: 350px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    align-content: start;
+  }
+
+  /* 衣服道具樣式 (用 CSS 模擬衣服) */
+  .item {
+    border: 2px dashed #ffb3c1;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    background: #fff5f7;
+    transition: transform 0.2s;
+  }
+  .item:hover {
+    transform: scale(1.05);
+    border-color: #ff4d6d;
+  }
+  .item-name {
+    font-size: 12px;
+    color: #ff4d6d;
+    margin-top: 5px;
+    font-weight: bold;
+  }
+
+  /* --- 模特兒展示區 --- */
+  .stage-section {
+    width: 220px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* 苗條紅髮模特兒主體 */
+  .model-container {
+    position: relative;
+    width: 160px;
+    height: 420px;
+    transition: transform 0.8s ease-in-out, left 0.8s ease-in-out;
+    left: 0;
+  }
+
+  /* 紅色長髮 */
+  .model-hair {
+    position: absolute;
+    top: 15px;
+    left: 45px;
+    width: 70px;
+    height: 140px;
+    background: #d9381e; /* 亮麗紅髮 */
+    border-radius: 35px 35px 20px 20px;
+    z-index: 1;
+  }
+  .model-hair-front {
+    position: absolute;
+    top: 15px;
+    left: 50px;
+    width: 60px;
+    height: 35px;
+    background: #d9381e;
+    border-radius: 30px 30px 0 0;
+    z-index: 3;
+  }
+
+  /* 苗條身材 */
+  .model-head {
+    position: absolute;
+    top: 25px;
+    left: 55px;
+    width: 50px;
+    height: 50px;
+    background: #ffd8be;
+    border-radius: 50%;
+    z-index: 2;
+  }
+  .model-body {
+    position: absolute;
+    top: 75px;
+    left: 62px;
+    width: 36px;
+    height: 120px;
+    background: #ffd8be;
+    border-radius: 15px;
+    z-index: 2;
+  }
+  /* 苗條腰線視覺效果 */
+  .model-body::after {
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: -5px;
+    width: 46px;
+    height: 30px;
+    /* border-radius: 50%; */
+  }
+
+  .model-legs {
+    position: absolute;
+    top: 190px;
+    left: 65px;
+    width: 30px;
+    height: 180px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 2;
+  }
+  .leg {
+    width: 12px;
+    height: 100%;
+    background: #ffd8be;
+    border-radius: 0 0 5px 5px;
+  }
+
+  /* --- 試衣圖層 (穿在模特兒身上的衣服) --- */
+  .worn-layer {
+    position: absolute;
+    z-index: 4;
+    display: none;
+    pointer-events: none;
+  }
+
+  /* --- 魔鏡區 --- */
+  .mirror-section {
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mirror {
+    width: 180px;
+    height: 430px;
+    background: linear-gradient(135deg, #e6f2ff 0%, #cce6ff 100%);
+    border: 10px solid #ffb3c1;
+    border-radius: 90px 90px 20px 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1), inset 0 0 15px rgba(255,255,255,0.6);
+    position: relative;
+  }
+
+  /* 鏡子發光特效 */
+  .mirror.glowing {
+    box-shadow: 0 0 30px #ff758f, inset 0 0 20px rgba(255, 255, 255, 0.8);
+    border-color: #ff758f;
+  }
+
+  /* 控制按鈕 */
+  .action-btn {
+    margin-top: 15px;
+    background: #ff4d6d;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 10px rgba(255, 47, 110, 0.3);
+    transition: all 0.2s;
+  }
+  .action-btn:hover {
+    background: #ff758f;
+    transform: translateY(-2px);
+  }
+
+  /* --- CSS 衣服外觀設計 (衣櫃與模特兒共用) --- */
+  .shape-top-1 { width: 40px; height: 50px; background: #ff007f; border-radius: 5px 5px 0 0; }
+  .shape-top-2 { width: 44px; height: 45px; background: #9b5de5; border-radius: 10px; }
+  .shape-bot-1 { width: 36px; height: 70px; background: #00bbf9; border-radius: 5px; }
+  .shape-bot-2 { width: 40px; height: 40px; background: #f15bb5; border-radius: 0 0 20px 20px; }
+  .shape-dress-1 { width: 46px; height: 160px; background: gold; border-radius: 10px 10px 40px 40px; }
+  .shape-dress-2 { width: 44px; height: 150px; background: #00f5d4; border-radius: 20px 20px 5px 5px; }
+
+</style>
+</head>
+<body>
+
+  <h1>✨ 我的夢幻粉紅衣櫥 ✨</h1>
+
+  <div class="game-container">
+    
+    <!-- 1. 左側：粉紅衣櫃 -->
+    <div class="wardrobe-section">
+      <div class="category-buttons">
+        <button class="active" onclick="filterCategory('top')">上衣</button>
+        <button onclick="filterCategory('bottom')">褲子</button>
+        <button onclick="filterCategory('skirt')">裙子</button>
+        <button onclick="filterCategory('dress')">禮服</button>
+      </div>
+      
+      <div class="clothes-shelf" id="shelf">
+        <!-- 衣服道具會由 JS 動態生成 -->
+      </div>
+    </div>
+
+    <!-- 2. 中間：模特兒展示區 -->
+    <div class="stage-section">
+      <div class="model-container" id="playerModel">
+        <div class="model-hair-front"></div>
+        <div class="model-hair"></div>
+        <div class="model-head"></div>
+        <div class="model-body"></div>
+        <div class="model-legs">
+          <div class="leg"></div>
+          <div class="leg"></div>
+        </div>
+        
+        <!-- 模特兒身上的衣服圖層 -->
+        <div id="worn-top" class="worn-layer" style="top: 75px; left: 60px;"></div>
+        <div id="worn-bottom" class="worn-layer" style="top: 120px; left: 62px;"></div>
+      </div>
+
+      <button class="action-btn" id="moveBtn" onclick="toggleMirror()">🏃‍♀️ 走到鏡子前</button>
+    </div>
+
+    <!-- 3. 右側：魔鏡區 -->
+    <div class="mirror-section">
+      <div class="mirror" id="magicMirror">
+        <!-- 模特兒走過來時會定位到這裡 -->
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  // --- 衣服資料庫 ---
+  const clothesData = [
+    { id: 'top1', category: 'top', name: '時尚桃紅背心', className: 'shape-top-1', offsetTop: '75px', offsetLeft: '60px' },
+    { id: 'top2', category: 'top', name: '優雅浪漫紫衣', className: 'shape-top-2', offsetTop: '75px', offsetLeft: '58px' },
+    { id: 'bot1', category: 'bottom', name: '率性天藍長褲', className: 'shape-bot-1', offsetTop: '115px', offsetLeft: '62px' },
+    { id: 'skirt1', category: 'skirt', name: '俏皮粉紅短裙', className: 'shape-bot-2', offsetTop: '115px', offsetLeft: '60px' },
+    { id: 'dress1', category: 'dress', name: '奢華晚宴金禮服', className: 'shape-dress-1', offsetTop: '75px', offsetLeft: '57px', isFullBody: true },
+    { id: 'dress2', category: 'dress', name: '蒂芬妮綠洋裝', className: 'shape-dress-2', offsetTop: '75px', offsetLeft: '58px', isFullBody: true }
+  ];
+
+  let currentCategory = 'top';
+  let isInMirror = false;
+
+  // --- 初始化：渲染衣櫃 ---
+  function renderShelf() {
+    const shelf = document.getElementById('shelf');
+    shelf.innerHTML = '';
+    
+    const filtered = clothesData.filter(item => item.category === currentCategory);
+    
+    filtered.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'item';
+      itemDiv.onclick = () => wearClothes(item);
+      
+      const shapeDiv = document.createElement('div');
+      shapeDiv.className = item.className;
+      
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'item-name';
+      nameDiv.innerText = item.name;
+      
+      itemDiv.appendChild(shapeDiv);
+      itemDiv.appendChild(nameDiv);
+      shelf.appendChild(itemDiv);
+    });
+  }
+
+  // --- 切換衣櫃分類 ---
+  function filterCategory(cat) {
+    currentCategory = cat;
+    document.querySelectorAll('.category-buttons button').forEach(btn => {
+      btn.classList.remove('active');
+      if(btn.innerText.includes(cat === 'top'?'衣':cat==='bottom'?'褲':cat==='skirt'?'裙':'禮')) {
+        btn.classList.add('active');
+      }
+    });
+    renderShelf();
+  }
+
+  // --- 換裝邏輯 ---
+  function wearClothes(item) {
+    const wornTop = document.getElementById('worn-top');
+    const wornBottom = document.getElementById('worn-bottom');
+
+    if (item.isFullBody) {
+      // 穿禮服/連身裙：脫掉原本的上衣與下著，換上連身裙
+      wornTop.className = `worn-layer ${item.className}`;
+      wornTop.style.top = item.offsetTop;
+      wornTop.style.offsetLeft = item.offsetLeft;
+      wornTop.style.display = 'block';
+      
+      wornBottom.style.display = 'none'; // 隱藏下著
+    } else if (item.category === 'top') {
+      // 穿上衣：如果是穿著禮服，先清空禮服
+      wornTop.className = `worn-layer ${item.className}`;
+      wornTop.style.top = item.offsetTop;
+      wornTop.style.left = item.offsetLeft;
+      wornTop.style.display = 'block';
+    } else if (item.category === 'bottom' || item.category === 'skirt') {
+      // 穿褲子或裙子
+      wornBottom.className = `worn-layer ${item.className}`;
+      wornBottom.style.top = item.offsetTop;
+      wornBottom.style.left = item.offsetLeft;
+      wornBottom.style.display = 'block';
+      
+      // 如果上半身穿的是連身大禮服，防呆把它脫掉以免重疊
+      if(wornTop.className.includes('shape-dress')) {
+        wornTop.style.display = 'none';
+      }
+    }
+  }
+
+  // --- 互動：移動模特兒到鏡子前 ---
+  function toggleMirror() {
+    const model = document.getElementById('playerModel');
+    const mirror = document.getElementById('magicMirror');
+    const btn = document.getElementById('moveBtn');
+
+    if (!isInMirror) {
+      // 讓模特兒水平滑動到鏡子前方的位置
+      model.style.transform = 'scale(0.95)'; // 照鏡子稍微縮小更有景深感
+      model.style.left = '250px'; // 這裡的像素剛好會讓她走到右邊鏡子中央
+      mirror.classList.add('glowing');
+      btn.innerText = '🔙 回到更衣區';
+      isInMirror = true;
+    } else {
+      // 走回原位
+      model.style.transform = 'scale(1)';
+      model.style.left = '0px';
+      mirror.classList.remove('glowing');
+      btn.innerText = '🏃‍♀️ 走到鏡子前';
+      isInMirror = false;
+    }
+  }
+
+  // 網頁載入時先執行一次衣櫃渲染
+  renderShelf();
+</script>
+
+</body>
+</html>
