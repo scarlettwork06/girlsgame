@@ -2,416 +2,510 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>夢幻粉紅衣櫃 - 互動換裝遊戲</title>
+<title>3D 夢幻美少女變身衣櫥</title>
 <style>
-  /* --- 基礎版面樣式 --- */
   body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
     background-color: #ffe5ec;
     font-family: 'Microsoft JhengHei', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-    padding: 20px;
     user-select: none;
   }
 
-  h1 {
+  /* 遊戲標題 */
+  #title {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    text-align: center;
     color: #ff4d6d;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-  }
-
-  .game-container {
-    display: flex;
-    gap: 40px;
-    background: #fff0f3;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(255, 77, 109, 0.2);
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* --- 粉紅衣櫃區 --- */
-  .wardrobe-section {
-    width: 320px;
-    background: #ffb3c1;
-    border: 4px solid #ff758f;
-    border-radius: 15px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-  }
-
-  .category-buttons {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 15px;
-  }
-
-  .category-buttons button {
-    background: #fff;
-    border: 2px solid #ff758f;
-    color: #ff4d6d;
-    padding: 8px;
-    border-radius: 8px;
-    cursor: pointer;
+    font-size: 24px;
     font-weight: bold;
-    transition: all 0.2s;
-  }
-
-  .category-buttons button.active, .category-buttons button:hover {
-    background: #ff4d6d;
-    color: white;
-  }
-
-  .clothes-shelf {
-    background: #fff;
-    border-radius: 10px;
-    padding: 15px;
-    flex-grow: 1;
-    min-height: 350px;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    align-content: start;
-  }
-
-  /* 衣服道具樣式 (用 CSS 模擬衣服) */
-  .item {
-    border: 2px dashed #ffb3c1;
-    border-radius: 8px;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    background: #fff5f7;
-    transition: transform 0.2s;
-  }
-  .item:hover {
-    transform: scale(1.05);
-    border-color: #ff4d6d;
-  }
-  .item-name {
-    font-size: 12px;
-    color: #ff4d6d;
-    margin-top: 5px;
-    font-weight: bold;
-  }
-
-  /* --- 模特兒展示區 --- */
-  .stage-section {
-    width: 220px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  /* 苗條紅髮模特兒主體 */
-  .model-container {
-    position: relative;
-    width: 160px;
-    height: 420px;
-    transition: transform 0.8s ease-in-out, left 0.8s ease-in-out;
-    left: 0;
-  }
-
-  /* 紅色長髮 */
-  .model-hair {
-    position: absolute;
-    top: 15px;
-    left: 45px;
-    width: 70px;
-    height: 140px;
-    background: #d9381e; /* 亮麗紅髮 */
-    border-radius: 35px 35px 20px 20px;
-    z-index: 1;
-  }
-  .model-hair-front {
-    position: absolute;
-    top: 15px;
-    left: 50px;
-    width: 60px;
-    height: 35px;
-    background: #d9381e;
-    border-radius: 30px 30px 0 0;
-    z-index: 3;
-  }
-
-  /* 苗條身材 */
-  .model-head {
-    position: absolute;
-    top: 25px;
-    left: 55px;
-    width: 50px;
-    height: 50px;
-    background: #ffd8be;
-    border-radius: 50%;
-    z-index: 2;
-  }
-  .model-body {
-    position: absolute;
-    top: 75px;
-    left: 62px;
-    width: 36px;
-    height: 120px;
-    background: #ffd8be;
-    border-radius: 15px;
-    z-index: 2;
-  }
-  /* 苗條腰線視覺效果 */
-  .model-body::after {
-    content: '';
-    position: absolute;
-    top: 40px;
-    left: -5px;
-    width: 46px;
-    height: 30px;
-    /* border-radius: 50%; */
-  }
-
-  .model-legs {
-    position: absolute;
-    top: 190px;
-    left: 65px;
-    width: 30px;
-    height: 180px;
-    display: flex;
-    justify-content: space-between;
-    z-index: 2;
-  }
-  .leg {
-    width: 12px;
-    height: 100%;
-    background: #ffd8be;
-    border-radius: 0 0 5px 5px;
-  }
-
-  /* --- 試衣圖層 (穿在模特兒身上的衣服) --- */
-  .worn-layer {
-    position: absolute;
-    z-index: 4;
-    display: none;
+    text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+    z-index: 10;
     pointer-events: none;
   }
 
-  /* --- 魔鏡區 --- */
-  .mirror-section {
-    width: 240px;
+  /* 2D UI 控制面板 */
+  #ui-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.85);
+    padding: 15px 25px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(255, 77, 109, 0.3);
+    border: 3px solid #ffb3c1;
     display: flex;
     flex-direction: column;
+    gap: 10px;
+    z-index: 10;
+    width: 600px;
+  }
+
+  .row {
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 10px;
   }
 
-  .mirror {
-    width: 180px;
-    height: 430px;
-    background: linear-gradient(135deg, #e6f2ff 0%, #cce6ff 100%);
-    border: 10px solid #ffb3c1;
-    border-radius: 90px 90px 20px 20px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1), inset 0 0 15px rgba(255,255,255,0.6);
-    position: relative;
-  }
-
-  /* 鏡子發光特效 */
-  .mirror.glowing {
-    box-shadow: 0 0 30px #ff758f, inset 0 0 20px rgba(255, 255, 255, 0.8);
-    border-color: #ff758f;
-  }
-
-  /* 控制按鈕 */
-  .action-btn {
-    margin-top: 15px;
-    background: #ff4d6d;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    font-size: 16px;
+  .label {
     font-weight: bold;
-    border-radius: 30px;
-    cursor: pointer;
-    box-shadow: 0 5px 10px rgba(255, 47, 110, 0.3);
-    transition: all 0.2s;
+    color: #ff4d6d;
+    min-width: 90px;
   }
-  .action-btn:hover {
+
+  .btn-group {
+    display: flex;
+    gap: 8px;
+    flex-grow: 1;
+  }
+
+  button {
+    background: #fff;
+    border: 2px solid #ff758f;
+    color: #ff4d6d;
+    padding: 6px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+    flex-grow: 1;
+  }
+
+  button:hover {
     background: #ff758f;
+    color: white;
     transform: translateY(-2px);
   }
 
-  /* --- CSS 衣服外觀設計 (衣櫃與模特兒共用) --- */
-  .shape-top-1 { width: 40px; height: 50px; background: #ff007f; border-radius: 5px 5px 0 0; }
-  .shape-top-2 { width: 44px; height: 45px; background: #9b5de5; border-radius: 10px; }
-  .shape-bot-1 { width: 36px; height: 70px; background: #00bbf9; border-radius: 5px; }
-  .shape-bot-2 { width: 40px; height: 40px; background: #f15bb5; border-radius: 0 0 20px 20px; }
-  .shape-dress-1 { width: 46px; height: 160px; background: gold; border-radius: 10px 10px 40px 40px; }
-  .shape-dress-2 { width: 44px; height: 150px; background: #00f5d4; border-radius: 20px 20px 5px 5px; }
+  button.active {
+    background: #ff4d6d;
+    color: white;
+    border-color: #ff4d6d;
+  }
 
+  .action-btn {
+    background: linear-gradient(45deg, #ff4d6d, #ff758f);
+    color: white;
+    border: none;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    box-shadow: 0 4px 10px rgba(255, 77, 109, 0.4);
+  }
+  .action-btn:hover {
+    background: linear-gradient(45deg, #ff758f, #ff4d6d);
+  }
 </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-  <h1>✨ 我的夢幻粉紅衣櫥 ✨</h1>
+<div id="title">✨ 3D 魔法光之美少女 · 夢幻試衣間 ✨</div>
 
-  <div class="game-container">
-    
-    <!-- 1. 左側：粉紅衣櫃 -->
-    <div class="wardrobe-section">
-      <div class="category-buttons">
-        <button class="active" onclick="filterCategory('top')">上衣</button>
-        <button onclick="filterCategory('bottom')">褲子</button>
-        <button onclick="filterCategory('skirt')">裙子</button>
-        <button onclick="filterCategory('dress')">禮服</button>
-      </div>
-      
-      <div class="clothes-shelf" id="shelf">
-        <!-- 衣服道具會由 JS 動態生成 -->
-      </div>
+<div id="ui-container">
+  <div class="row">
+    <div class="label">❤️ 紅髮姐姐:</div>
+    <div class="btn-group">
+      <button onclick="changeOutfit(0, 'top')">日常上衣</button>
+      <button onclick="changeOutfit(0, 'pants')">休閒長褲</button>
+      <button onclick="changeOutfit(0, 'skirt')">俏皮短裙</button>
+      <button class="active" onclick="changeOutfit(0, 'dress1')">華麗星空大禮服</button>
     </div>
-
-    <!-- 2. 中間：模特兒展示區 -->
-    <div class="stage-section">
-      <div class="model-container" id="playerModel">
-        <div class="model-hair-front"></div>
-        <div class="model-hair"></div>
-        <div class="model-head"></div>
-        <div class="model-body"></div>
-        <div class="model-legs">
-          <div class="leg"></div>
-          <div class="leg"></div>
-        </div>
-        
-        <!-- 模特兒身上的衣服圖層 -->
-        <div id="worn-top" class="worn-layer" style="top: 75px; left: 60px;"></div>
-        <div id="worn-bottom" class="worn-layer" style="top: 120px; left: 62px;"></div>
-      </div>
-
-      <button class="action-btn" id="moveBtn" onclick="toggleMirror()">🏃‍♀️ 走到鏡子前</button>
-    </div>
-
-    <!-- 3. 右側：魔鏡區 -->
-    <div class="mirror-section">
-      <div class="mirror" id="magicMirror">
-        <!-- 模特兒走過來時會定位到這裡 -->
-      </div>
-    </div>
-
   </div>
 
+  <div class="row">
+    <div class="label">💜 紫髮妹妹:</div>
+    <div class="btn-group">
+      <button onclick="changeOutfit(1, 'top')">精靈上衣</button>
+      <button onclick="changeOutfit(1, 'pants')">魔法長褲</button>
+      <button onclick="changeOutfit(1, 'skirt')">百褶裙</button>
+      <button class="active" onclick="changeOutfit(1, 'dress2')">翡翠森林仙女裙</button>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top: 5px; justify-content: center;">
+    <button class="action-btn" id="moveBtn" onclick="togglePosition()" style="max-width: 300px;">🏃‍♀️ 帶她們去照鏡子</button>
+  </div>
+</div>
+
 <script>
-  // --- 衣服資料庫 ---
-  const clothesData = [
-    { id: 'top1', category: 'top', name: '時尚桃紅背心', className: 'shape-top-1', offsetTop: '75px', offsetLeft: '60px' },
-    { id: 'top2', category: 'top', name: '優雅浪漫紫衣', className: 'shape-top-2', offsetTop: '75px', offsetLeft: '58px' },
-    { id: 'bot1', category: 'bottom', name: '率性天藍長褲', className: 'shape-bot-1', offsetTop: '115px', offsetLeft: '62px' },
-    { id: 'skirt1', category: 'skirt', name: '俏皮粉紅短裙', className: 'shape-bot-2', offsetTop: '115px', offsetLeft: '60px' },
-    { id: 'dress1', category: 'dress', name: '奢華晚宴金禮服', className: 'shape-dress-1', offsetTop: '75px', offsetLeft: '57px', isFullBody: true },
-    { id: 'dress2', category: 'dress', name: '蒂芬妮綠洋裝', className: 'shape-dress-2', offsetTop: '75px', offsetLeft: '58px', isFullBody: true }
+  // --- 基礎 3D 場景設定 ---
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xfff0f3);
+
+  // 主相機
+  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 2, 8);
+  camera.lookAt(0, 1.5, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  document.body.appendChild(renderer.domElement);
+
+  // --- 燈光設定 ---
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+  scene.add(ambientLight);
+
+  const dirLight = new THREE.DirectionalLight(0xffe5ec, 0.8);
+  dirLight.position.set(5, 10, 7);
+  dirLight.castShadow = true;
+  scene.add(dirLight);
+
+  // --- 鏡子副相機與渲染目標 (實時反射) ---
+  const mirrorWidth = 2.5, mirrorHeight = 4.5;
+  const mirrorRenderTarget = new THREE.WebGLRenderTarget(512, 512);
+  const mirrorCamera = new THREE.PerspectiveCamera(45, mirrorWidth / mirrorHeight, 0.1, 100);
+  // 鏡子放在右側 (x=4)，所以鏡子相機放在鏡面處，往左看 (-x 軸)
+  mirrorCamera.position.set(4, 1.8, 0);
+  mirrorCamera.lookAt(-5, 1.8, 0);
+
+  // --- 創建 3D 物件 ---
+
+  // 地板
+  const floorGeo = new THREE.PlaneGeometry(20, 20);
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0xffe5ec, roughness: 0.4 });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  // 1. 粉紅大衣櫃 (背景)
+  const wardrobeGroup = new THREE.Group();
+  wardrobeGroup.position.set(-1.5, 0, -1);
+
+  const backGeo = new THREE.BoxGeometry(5, 5, 0.2);
+  const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff758f, roughness: 0.5 });
+  const wardrobeBack = new THREE.Mesh(backGeo, pinkMat);
+  wardrobeBack.position.y = 2.5;
+  wardrobeBack.castShadow = true;
+  wardrobeBack.receiveShadow = true;
+  wardrobeGroup.add(wardrobeBack);
+
+  // 衣櫃側板、頂板
+  const sideGeo = new THREE.BoxGeometry(0.2, 5, 1);
+  const leftSide = new THREE.Mesh(sideGeo, pinkMat);
+  leftSide.position.set(-2.5, 2.5, 0.5);
+  wardrobeGroup.add(leftSide);
+
+  const rightSide = leftSide.clone();
+  rightSide.position.x = 2.5;
+  wardrobeGroup.add(rightSide);
+
+  // 掛衣桿
+  const barGeo = new THREE.CylinderGeometry(0.04, 0.04, 4.8);
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.8, roughness: 0.2 });
+  const bar = new THREE.Mesh(barGeo, goldMat);
+  bar.rotation.z = Math.PI / 2;
+  bar.position.set(0, 4.2, 0.5);
+  wardrobeGroup.add(bar);
+  scene.add(wardrobeGroup);
+
+  // 2. 華麗魔鏡 (右側)
+  const mirrorGroup = new THREE.Group();
+  mirrorGroup.position.set(4, 0, 0);
+  mirrorGroup.rotation.y = -Math.PI / 2; // 面向中央
+
+  // 鏡框
+  const frameGeo = new THREE.BoxGeometry(mirrorWidth + 0.3, mirrorHeight + 0.3, 0.1);
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0xffb3c1, roughness: 0.3 });
+  const mirrorFrame = new THREE.Mesh(frameGeo, frameMat);
+  mirrorFrame.position.y = mirrorHeight / 2;
+  mirrorGroup.add(mirrorFrame);
+
+  // 鏡面 (使用副相機的紋理)
+  const mirrorGeo = new THREE.PlaneGeometry(mirrorWidth, mirrorHeight);
+  const mirrorMat = new THREE.MeshBasicMaterial({ map: mirrorRenderTarget.texture });
+  const mirrorMesh = new THREE.Mesh(mirrorGeo, mirrorMat);
+  mirrorMesh.position.set(0, mirrorHeight / 2, 0.06);
+  mirrorGroup.add(mirrorMesh);
+  scene.add(mirrorGroup);
+
+
+  // --- 3. 創建美少女模特兒 (光之美少女風格) ---
+  const models = [];
+  
+  function createAnimeModel(hairColor, isLongHair) {
+    const modelGroup = new THREE.Group();
+
+    // 苗條身軀 ( menggunakan Capsule 或 Cylinder )
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0xffe0d0, roughness: 0.6 }); // 膚色
+    
+    // 頭部
+    const headGeo = new THREE.SphereGeometry(0.22, 32, 32);
+    const head = new THREE.Mesh(headGeo, bodyMat);
+    head.position.y = 1.9;
+    modelGroup.add(head);
+
+    // 眼睛 (簡單超萌大眼效果)
+    const eyeGeo = new THREE.SphereGeometry(0.03, 16, 16);
+    const eyeMat = new THREE.MeshBasicMaterial({ color: 0x333333 });
+    const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+    leftEye.position.set(-0.07, 1.92, 0.18);
+    const rightEye = leftEye.clone();
+    rightEye.position.x = 0.07;
+    modelGroup.add(leftEye);
+    modelGroup.add(rightEye);
+
+    // 苗條身體 (腰身)
+    const torsoGeo = new THREE.CylinderGeometry(0.12, 0.08, 0.6, 16);
+    const torso = new THREE.Mesh(torsoGeo, bodyMat);
+    torso.position.y = 1.4;
+    modelGroup.add(torso);
+
+    // 苗條長腿
+    const legGeo = new THREE.CylinderGeometry(0.04, 0.03, 0.9, 16);
+    const leftLeg = new THREE.Mesh(legGeo, bodyMat);
+    leftLeg.position.set(-0.07, 0.55, 0);
+    const rightLeg = leftLeg.clone();
+    rightLeg.position.x = 0.07;
+    modelGroup.add(leftLeg);
+    modelGroup.add(rightLeg);
+
+    // 手臂
+    const armGeo = new THREE.CylinderGeometry(0.03, 0.025, 0.6, 16);
+    const leftArm = new THREE.Mesh(armGeo, bodyMat);
+    leftArm.position.set(-0.16, 1.4, 0);
+    leftArm.rotation.z = 0.1;
+    const rightArm = leftArm.clone();
+    rightArm.position.x = 0.16;
+    rightArm.rotation.z = -0.1;
+    modelGroup.add(leftArm);
+    modelGroup.add(rightArm);
+
+    // 髮型設計 (光之美少女萌系風)
+    const hairMat = new THREE.MeshStandardMaterial({ color: hairColor, roughness: 0.5 });
+    if (isLongHair) {
+      // 紅色雙馬尾/長髮
+      const hairTop = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), hairMat);
+      hairTop.position.set(0, 1.95, -0.02);
+      modelGroup.add(hairTop);
+
+      const strandGeo = new THREE.CylinderGeometry(0.05, 0.01, 0.8, 16);
+      const leftStrand = new THREE.Mesh(strandGeo, hairMat);
+      leftStrand.position.set(-0.18, 1.5, -0.1);
+      leftStrand.rotation.z = 0.3;
+      const rightStrand = leftStrand.clone();
+      rightStrand.position.x = 0.18;
+      rightArm.rotation.z = -0.3;
+      modelGroup.add(leftStrand);
+      modelGroup.add(rightStrand);
+    } else {
+      // 紫色俏麗短髮
+      const hairTop = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), hairMat);
+      hairTop.position.set(0, 1.95, 0);
+      modelGroup.add(hairTop);
+      
+      const bobGeo = new THREE.SphereGeometry(0.26, 16, 16, 0, Math.PI*2, 0, Math.PI/2);
+      const hairBob = new THREE.Mesh(bobGeo, hairMat);
+      hairBob.position.set(0, 1.92, 0);
+      modelGroup.add(hairBob);
+    }
+
+    // 衣服容器層 (動態更換配件用)
+    const clothesGroup = new THREE.Group();
+    modelGroup.add(clothesGroup);
+    modelGroup.clothes = clothesGroup;
+
+    // 開啟陰影
+    modelGroup.traverse(child => {
+      if (child.isMesh) child.castShadow = true;
+    });
+
+    scene.add(modelGroup);
+    return modelGroup;
+  }
+
+  // 產生兩名美少女
+  const model1 = createAnimeModel(0xd9381e, true);  // 1: 紅色長髮
+  const model2 = createAnimeModel(0x9b5de5, false); // 2: 紫色短髮
+
+  // 設定初使站立位置 (衣櫃前方)
+  const posWardrobe = [
+    { x: -0.6, z: 0.8 }, // 模特 1
+    { x: 0.6, z: 0.8 }   // 模特 2
   ];
 
-  let currentCategory = 'top';
-  let isInMirror = false;
+  // 設定照鏡子位置 (鏡子前方，背對觀眾)
+  const posMirror = [
+    { x: 2.2, z: -0.5 }, // 內側
+    { x: 2.2, z: 0.5 }   // 外側
+  ];
 
-  // --- 初始化：渲染衣櫃 ---
-  function renderShelf() {
-    const shelf = document.getElementById('shelf');
-    shelf.innerHTML = '';
-    
-    const filtered = clothesData.filter(item => item.category === currentCategory);
-    
-    filtered.forEach(item => {
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'item';
-      itemDiv.onclick = () => wearClothes(item);
-      
-      const shapeDiv = document.createElement('div');
-      shapeDiv.className = item.className;
-      
-      const nameDiv = document.createElement('div');
-      nameDiv.className = 'item-name';
-      nameDiv.innerText = item.name;
-      
-      itemDiv.appendChild(shapeDiv);
-      itemDiv.appendChild(nameDiv);
-      shelf.appendChild(itemDiv);
-    });
-  }
+  model1.position.set(posWardrobe[0].x, 0, posWardrobe[0].z);
+  model2.position.set(posWardrobe[1].x, 0, posWardrobe[1].z);
 
-  // --- 切換衣櫃分類 ---
-  function filterCategory(cat) {
-    currentCategory = cat;
-    document.querySelectorAll('.category-buttons button').forEach(btn => {
-      btn.classList.remove('active');
-      if(btn.innerText.includes(cat === 'top'?'衣':cat==='bottom'?'褲':cat==='skirt'?'裙':'禮')) {
-        btn.classList.add('active');
-      }
-    });
-    renderShelf();
-  }
+  models.push(model1, model2);
 
-  // --- 換裝邏輯 ---
-  function wearClothes(item) {
-    const wornTop = document.getElementById('worn-top');
-    const wornBottom = document.getElementById('worn-bottom');
 
-    if (item.isFullBody) {
-      // 穿禮服/連身裙：脫掉原本的上衣與下著，換上連身裙
-      wornTop.className = `worn-layer ${item.className}`;
-      wornTop.style.top = item.offsetTop;
-      wornTop.style.offsetLeft = item.offsetLeft;
-      wornTop.style.display = 'block';
-      
-      wornBottom.style.display = 'none'; // 隱藏下著
-    } else if (item.category === 'top') {
-      // 穿上衣：如果是穿著禮服，先清空禮服
-      wornTop.className = `worn-layer ${item.className}`;
-      wornTop.style.top = item.offsetTop;
-      wornTop.style.left = item.offsetLeft;
-      wornTop.style.display = 'block';
-    } else if (item.category === 'bottom' || item.category === 'skirt') {
-      // 穿褲子或裙子
-      wornBottom.className = `worn-layer ${item.className}`;
-      wornBottom.style.top = item.offsetTop;
-      wornBottom.style.left = item.offsetLeft;
-      wornBottom.style.display = 'block';
-      
-      // 如果上半身穿的是連身大禮服，防呆把它脫掉以免重疊
-      if(wornTop.className.includes('shape-dress')) {
-        wornTop.style.display = 'none';
-      }
+  // --- 4. 魔法換裝系統 (3D 幾何製作衣服) ---
+  
+  function changeOutfit(modelIndex, type) {
+    const targetModel = models[modelIndex];
+    // 清空舊衣服
+    while(targetModel.clothes.children.length > 0){
+      targetModel.clothes.remove(targetModel.clothes.children[0]);
     }
+
+    // 根據選擇的類別，動態生成 3D 衣服組件
+    if (type === 'top') {
+      // 俏皮小背心
+      const topGeo = new THREE.CylinderGeometry(0.13, 0.13, 0.35, 16);
+      const topMat = new THREE.MeshStandardMaterial({ color: 0x00f5d4, roughness: 0.3 });
+      const topMesh = new THREE.Mesh(topGeo, topMat);
+      topMesh.position.y = 1.45;
+      targetModel.clothes.add(topMesh);
+    } 
+    else if (type === 'pants') {
+      // 帥氣魔法長褲
+      const pantsGroup = new THREE.Group();
+      const pMat = new THREE.MeshStandardMaterial({ color: 0x00bbf9 });
+      const legGeo = new THREE.CylinderGeometry(0.05, 0.04, 0.7, 16);
+      const lLeg = new THREE.Mesh(legGeo, pMat); lLeg.position.set(-0.07, 0.65, 0);
+      const rLeg = new THREE.Mesh(legGeo, pMat); rLeg.position.set(0.07, 0.65, 0);
+      pantsGroup.add(lLeg, rLeg);
+      targetModel.clothes.add(pantsGroup);
+    } 
+    else if (type === 'skirt') {
+      // 澎澎百褶裙
+      const skirtGeo = new THREE.ConeGeometry(0.28, 0.4, 16, 1, true);
+      const skirtMat = new THREE.MeshStandardMaterial({ color: 0xf15bb5, side: THREE.DoubleSide });
+      const skirtMesh = new THREE.Mesh(skirtGeo, skirtMat);
+      skirtMesh.position.y = 1.0;
+      targetModel.clothes.add(skirtMesh);
+    } 
+    else if (type === 'dress1') {
+      // 華麗星空大禮服 (對標圖片1：超長拖尾、粉藍漸層感)
+      const dressGroup = new THREE.Group();
+      const dMat = new THREE.MeshStandardMaterial({ color: 0x224499, roughness: 0.2 }); // 深藍底
+      const overlayMat = new THREE.MeshStandardMaterial({ color: 0xff99bb, roughness: 0.4 }); // 粉色裙擺
+
+      // 上身平口
+      const bodice = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.1, 0.4, 16), dMat);
+      bodice.position.y = 1.4;
+      dressGroup.add(bodice);
+
+      // 巨型蓬蓬裙主體
+      const gown = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.3, 32), overlayMat);
+      gown.position.y = 0.65;
+      dressGroup.add(gown);
+
+      // 超長華麗拖尾 (大偏心圓錐體延伸)
+      const trainGeo = new THREE.ConeGeometry(1.2, 1.6, 32);
+      const train = new THREE.Mesh(trainGeo, dMat);
+      train.position.set(0, 0.5, -0.5); // 往後拖曳
+      train.rotation.x = 0.2;
+      dressGroup.add(train);
+
+      targetModel.clothes.add(dressGroup);
+    } 
+    else if (type === 'dress2') {
+      // 翡翠仙女大禮服 (對標圖片3：一字領、蓬鬆綠色大裙擺)
+      const dressGroup = new THREE.Group();
+      const gMat = new THREE.MeshStandardMaterial({ color: 0x73a942, roughness: 0.4 }); // 仙女綠
+
+      const bodice = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.1, 0.4, 16), gMat);
+      bodice.position.y = 1.4;
+      
+      // 一字領澎澎袖
+      const sleeveGeo = new THREE.SphereGeometry(0.08, 16, 16);
+      const lSleeve = new THREE.Mesh(sleeveGeo, gMat); lSleeve.position.set(-0.16, 1.5, 0);
+      const rSleeve = new THREE.Mesh(sleeveGeo, gMat); rSleeve.position.set(0.16, 1.5, 0);
+      dressGroup.add(bodice, lSleeve, rSleeve);
+
+      // 典雅落地大裙擺
+      const gown = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.7, 1.3, 32), gMat);
+      gown.position.y = 0.65;
+      dressGroup.add(gown);
+
+      targetModel.clothes.add(dressGroup);
+    }
+
+    // 讓新衣服同步開啟陰影
+    targetModel.clothes.traverse(child => { if(child.isMesh) child.castShadow = true; });
   }
 
-  // --- 互動：移動模特兒到鏡子前 ---
-  function toggleMirror() {
-    const model = document.getElementById('playerModel');
-    const mirror = document.getElementById('magicMirror');
+  // 初始化預穿華麗禮服
+  changeOutfit(0, 'dress1');
+  changeOutfit(1, 'dress2');
+
+
+  // --- 5. 互動狀態與動畫邏輯 ---
+  let isAtMirror = false;
+  
+  function togglePosition() {
+    isAtMirror = !isAtMirror;
     const btn = document.getElementById('moveBtn');
-
-    if (!isInMirror) {
-      // 讓模特兒水平滑動到鏡子前方的位置
-      model.style.transform = 'scale(0.95)'; // 照鏡子稍微縮小更有景深感
-      model.style.left = '250px'; // 這裡的像素剛好會讓她走到右邊鏡子中央
-      mirror.classList.add('glowing');
-      btn.innerText = '🔙 回到更衣區';
-      isInMirror = true;
+    if (isAtMirror) {
+      btn.innerText = '🔙 返回更衣區';
     } else {
-      // 走回原位
-      model.style.transform = 'scale(1)';
-      model.style.left = '0px';
-      mirror.classList.remove('glowing');
-      btn.innerText = '🏃‍♀️ 走到鏡子前';
-      isInMirror = false;
+      btn.innerText = '🏃‍♀️ 帶她們去照鏡子';
     }
   }
 
-  // 網頁載入時先執行一次衣櫃渲染
-  renderShelf();
-</script>
+  // 動態漸變（Lerp）函數，讓移動更絲滑
+  function lerp(start, end, amt) {
+    return (1 - amt) * start + amt * end;
+  }
 
+  // 主渲染迴圈
+  function animate() {
+    requestAnimationFrame(animate);
+
+    // 處理兩個模特兒的移動與旋轉
+    for (let i = 0; i < 2; i++) {
+      const model = models[i];
+      let targetX, targetZ, targetRotY;
+
+      if (isAtMirror) {
+        // 去鏡子前：走到右側、轉身背對我們 (面朝右，即 +x 軸)
+        targetX = posMirror[i].x;
+        targetZ = posMirror[i].z;
+        targetRotY = Math.PI / 2; 
+      } else {
+        // 回衣櫃前：走回中央、面向我們 (面朝前，即 +z 軸)
+        targetX = posWardrobe[i].x;
+        targetZ = posWardrobe[i].z;
+        targetRotY = 0;
+      }
+
+      // 絲滑位移與轉向
+      model.position.x = lerp(model.position.x, targetX, 0.08);
+      model.position.z = lerp(model.position.z, targetZ, 0.08);
+      model.rotation.y = lerp(model.rotation.y, targetRotY, 0.08);
+    }
+
+    // --- 實時鏡子反射渲染機制 ---
+    // 1. 先隱藏鏡子自身，防止鏡中世界無限循環
+    mirrorMesh.visible = false;
+    // 2. 切換渲染目標到鏡子紋理，讓副相機拍下畫面上所有的物件
+    renderer.setRenderTarget(mirrorRenderTarget);
+    renderer.render(scene, mirrorCamera);
+    // 3. 恢復渲染到主畫面，並把鏡子顯示出來
+    renderer.setRenderTarget(null);
+    mirrorMesh.visible = true;
+
+    // 4. 最終渲染主相機畫面
+    renderer.render(scene, camera);
+  }
+
+  // 自動隨視窗大小調整 3D 畫面
+  window.addEventListener('resize', onWindowResize, false);
+  function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  // 啟動 3D 動畫世界！
+  animate();
+
+</script>
 </body>
 </html>
