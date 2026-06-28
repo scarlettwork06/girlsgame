@@ -3,216 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D 夢幻試衣間 - 網站設計範例</title>
+    <title>3D 夢幻動漫試衣間</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #fce4ec; font-family: sans-serif; }
+        body { margin: 0; overflow: hidden; background-color: #ffe4e1; font-family: 'Microsoft JhengHei', sans-serif; }
         canvas { display: block; }
         #ui-container {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 10px;
+            gap: 15px;
             z-index: 100;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 15px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(236, 64, 122, 0.2);
+            backdrop-filter: blur(5px);
         }
         button {
-            padding: 10px 20px;
-            background-color: #f8bbd0;
-            border: 2px solid #ec407a;
-            color: #ec407a;
-            font-size: 16px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ff8da1, #ff6584);
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
             border-radius: 20px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            box-shadow: 0 4px 10px rgba(255, 101, 132, 0.3);
+            transition: all 0.2s ease;
         }
         button:hover {
-            background-color: #f48fb1;
-            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 101, 132, 0.5);
+        }
+        button:active {
+            transform: translateY(1px);
         }
     </style>
+
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
 </head>
 <body>
 
     <div id="ui-container">
-        <button id="btnRedTops">選擇 紅髮-上衣</button>
-        <button id="btnRedDresses">選擇 紅髮-禮服</button>
-        <button id="btnPurpleBottoms">選擇 紫髮-下衣</button>
-        <button id="btnMoveToMirror">移動到鏡子前</button>
+        <button id="btnRedDress">紅髮變身：夢幻星空禮服</button>
+        <button id="btnPurpleDress">紫髮變身：精靈綠光禮服</button>
+        <button id="btnMovePurple">帶紫髮女孩照鏡子</button>
+        <button id="btnReset">全部回原位面朝前</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/objects/Reflector.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/controls/DragControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/loaders/GLTFLoader.js"></script>
-
     <script type="module">
-        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.module.js';
-        import { Reflector } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/objects/Reflector.js';
-        import { DragControls } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/controls/DragControls.js';
-        import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/loaders/GLTFLoader.js';
+        import * as THREE from 'three';
+        import { Reflector } from 'three/addons/objects/Reflector.js';
+        import { DragControls } from 'three/addons/controls/DragControls.js';
 
         let scene, camera, renderer, mirrorReflector;
-        let modelRed, modelPurple;
-        let loader = new GLTFLoader();
-
-        // 模擬的衣服模型容器 (真正應用中需要為每個模特兒創建衣服Mesh集合)
-        let redClothesMeshGroup = new THREE.Group();
-        let purpleClothesMeshGroup = new THREE.Group();
+        let girlRed, girlPurple;
+        let redDressMesh, purpleDressMesh; // 用於動態換裝的網格
 
         init();
         animate();
 
         function init() {
-            // 1. 初始化核心元素
+            // 1. 場景與相機 (營造溫柔的夢幻粉色氛圍)
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 5, 20); // 調整相機位置以查看場景
+            scene.background = new THREE.Color(0xfff0f5); 
 
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 7, 22);
+
+            // 2. 渲染器
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setClearColor(0xfce4ec); // 柔和粉紅色背景
+            renderer.setPixelRatio(window.devicePixelRatio);
             document.body.appendChild(renderer.domElement);
 
-            // 2. 添加燈光
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); // 環境光
+            // 3. 夢幻光線 (增加粉嫩感與立體感)
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
             scene.add(ambientLight);
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(5, 10, 7).normalize(); // 方向光
-            scene.add(directionalLight);
-
-            // 3. 載入資產 (以下均為佔位符代碼，您需要替換為實際的模型路徑)
             
-            // --- A. 載入粉紅衣櫃模型 ---
-            /*
-            loader.load('path/to/your/pink_wardrobe_model.glb', (gltf) => {
-                scene.add(gltf.scene);
-                gltf.scene.position.y = -1;
-            });
-            */
-            // 佔位符：創建一個簡單的粉紅框代表衣櫃
-            const wBox = new THREE.Mesh(new THREE.BoxGeometry(30, 15, 5), new THREE.MeshLambertMaterial({color: 0xf8bbd0}));
-            wBox.position.set(0, 6.5, -3);
-            scene.add(wBox);
+            const mainLight = new THREE.DirectionalLight(0xfff0f5, 0.8);
+            mainLight.position.set(5, 12, 10);
+            scene.add(mainLight);
 
-            // --- B. 載入紅髮苗條模特兒 (苗條、光之美少女風格) ---
-            /*
-            loader.load('path/to/your/model_red_girl.glb', (gltf) => {
-                modelRed = gltf.scene;
-                scene.add(modelRed);
-                modelRed.position.set(-5, -1, 5);
-                // 為紅髮模特兒添加衣服Mesh組
-                modelRed.add(redClothesMeshGroup);
-            });
-            */
-            // 佔位符：創建一個紅柱子代表紅髮模特兒
-            modelRed = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 12), new THREE.MeshLambertMaterial({color: 0xef5350}));
-            modelRed.position.set(-5, 6, 5);
-            scene.add(modelRed);
-            modelRed.add(redClothesMeshGroup); // 附屬衣服組
+            const fillLight = new THREE.PointLight(0xffd1dc, 0.6, 30);
+            fillLight.position.set(-6, 5, 5);
+            scene.add(fillLight);
 
-            // --- C. 載入紫髮苗條模特兒 ---
-            /*
-            loader.load('path/to/your/model_purple_girl.glb', (gltf) => {
-                modelPurple = gltf.scene;
-                scene.add(modelPurple);
-                modelPurple.position.set(5, -1, 5);
-                // 為紫髮模特兒添加衣服Mesh組
-                modelPurple.add(purpleClothesMeshGroup);
-            });
-            */
-            // 佔位符：創建一個紫柱子代表紫髮模特兒
-            modelPurple = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 12), new THREE.MeshLambertMaterial({color: 0x9575cd}));
-            modelPurple.position.set(5, 6, 5);
-            scene.add(modelPurple);
-            modelPurple.add(purpleClothesMeshGroup); // 附屬衣服組
+            // 4. 可愛的心形圖案地板
+            const floorGeo = new THREE.PlaneGeometry(40, 30);
+            const floorMat = new THREE.MeshLambertMaterial({ color: 0xffe4e1 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
 
-            // --- D. 載入衣服模型集合並分類 ---
-            // 您需要將每個衣服模型（glb）作為Mesh載入，並根據分類管理（Tops, Bottoms, Skirts, Dresses）
+            // ==========================================
+            // 5. 建造「粉紅豪華大衣櫃」
+            // ==========================================
+            const wardrobe = new THREE.Group();
+            
+            // 衣櫃主體框架 (背板與側板)
+            const backMat = new THREE.MeshLambertMaterial({ color: 0xffb7c5 });
+            const sideMat = new THREE.MeshLambertMaterial({ color: 0xff99aa });
+            
+            const backWall = new THREE.Mesh(new THREE.BoxGeometry(16, 12, 0.5), backMat);
+            backWall.position.set(0, 6, -4);
+            wardrobe.add(backWall);
+            
+            const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 12, 4), sideMat);
+            leftWall.position.set(-8, 6, -2);
+            wardrobe.add(leftWall);
+            
+            const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 12, 4), sideMat);
+            rightWall.position.set(8, 6, -2);
+            wardrobe.add(rightWall);
+            
+            const topWall = new THREE.Mesh(new THREE.BoxGeometry(16.5, 0.5, 4.2), sideMat);
+            topWall.position.set(0, 12, -2);
+            wardrobe.add(topWall);
 
-            // 4. 實現鏡子 (3D立體反射)
-            // 創建一個平面，並應用 Three.js 的 Reflector 類
-            const mirrorGeometry = new THREE.PlaneGeometry(10, 20); // 調整大小
-            mirrorReflector = new Reflector(mirrorGeometry, {
+            // 衣櫃內部：金屬吊衣桿
+            const rodGeo = new THREE.CylinderGeometry(0.08, 0.08, 15.4);
+            const rodMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.9, roughness: 0.1 });
+            const rod = new THREE.Mesh(rodGeo, rodMat);
+            rod.rotation.z = Math.PI / 2;
+            rod.position.set(0, 10.5, -2);
+            wardrobe.add(rod);
+
+            // 在衣櫃裡掛上幾件分類衣服 (模擬衣服、裙子、禮服區)
+            const dressColors = [0xba55d3, 0xff69b4, 0x48d1cc, 0xffb6c1];
+            for(let i=0; i<4; i++) {
+                const hangerGroup = new THREE.Group();
+                // 模擬小衣架
+                const hanger = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.03, 8, 24, Math.PI), new THREE.MeshLambertMaterial({color: 0x555555}));
+                hanger.position.y = 0.2;
+                hangerGroup.add(hanger);
+                // 模擬衣服
+                const hangingCloth = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.8, 16), new THREE.MeshLambertMaterial({color: dressColors[i]}));
+                hangingCloth.position.y = -0.8;
+                hangerGroup.add(hangingCloth);
+                
+                hangerGroup.position.set(-5 + i*3.3, 10.3, -2);
+                wardrobe.add(hangerGroup);
+            }
+            scene.add(wardrobe);
+
+
+            // ==========================================
+            // 6. 捏出「光之美少女風」動漫模特兒娃娃
+            // ==========================================
+            
+            // 創建漂亮娃娃的通用函數
+            function createAnimeGirl(hairColor, isLongHair) {
+                const girl = new THREE.Group();
+                
+                // 皮膚材質 (白皙粉嫩)
+                const skinMat = new THREE.MeshLambertMaterial({ color: 0xffe5d9 });
+                // 髮絲材質
+                const hairMat = new THREE.MeshLambertMaterial({ color: hairColor });
+
+                // A. 苗條的身體與雙腿
+                const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.15, 2), skinMat);
+                torso.position.y = 3.5;
+                girl.add(torso);
+                
+                const legMat = new THREE.MeshLambertMaterial({ color: 0xffe5d9 });
+                const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.06, 2.5), legMat);
+                leftLeg.position.set(-0.2, 1.25, 0);
+                const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.06, 2.5), legMat);
+                rightLeg.position.set(0.2, 1.25, 0);
+                girl.add(leftLeg, rightLeg);
+
+                // B. 纖細的雙臂 (擺出可愛微張姿勢)
+                const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 1.5), skinMat);
+                leftArm.position.set(-0.45, 3.5, 0);
+                leftArm.rotation.z = 0.2;
+                const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 1.5), skinMat);
+                rightArm.position.set(0.45, 3.5, 0);
+                rightArm.rotation.z = -0.2;
+                girl.add(leftArm, rightArm);
+
+                // C. 頭部與可愛大眼睛
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), skinMat);
+                head.position.y = 4.8;
+                girl.add(head);
+
+                // 萌系大眼睛 (兩個小黑點)
+                const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+                const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), eyeMat);
+                leftEye.position.set(-0.15, 4.85, 0.42);
+                const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), eyeMat);
+                rightEye.position.set(0.15, 4.85, 0.42);
+                girl.add(leftEye, rightEye);
+
+                // D. 髮型設計
+                const hairGroup = new THREE.Group();
+                // 瀏海/主體頭髮
+                const hairTop = new THREE.Mesh(new THREE.SphereGeometry(0.56, 16, 16), hairMat);
+                hairTop.position.set(0, 4.9, 0.02);
+                hairGroup.add(hairTop);
+
+                if (isLongHair) {
+                    // 紅色長髮：兩側與後方垂下的長髮包
+                    const strandLeft = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.2, 2.5), hairMat);
+                    strandLeft.position.set(-0.4, 3.8, -0.1);
+                    const strandRight = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.2, 2.5), hairMat);
+                    strandRight.position.set(0.4, 3.8, -0.1);
+                    // 後方大長髮
+                    const strandBack = new THREE.Mesh(new THREE.BoxGeometry(0.8, 2.8, 0.2), hairMat);
+                    strandBack.position.set(0, 3.6, -0.3);
+                    hairGroup.add(strandLeft, strandRight, strandBack);
+                } else {
+                    // 紫色短髮：俏麗的包包頭或短髮造型
+                    const bunLeft = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), hairMat);
+                    bunLeft.position.set(-0.45, 5.3, 0);
+                    const bunRight = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), hairMat);
+                    bunRight.position.set(0.45, 5.3, 0);
+                    hairGroup.add(bunLeft, bunRight);
+                }
+                girl.add(hairGroup);
+
+                // E. 初始服裝 (蓬蓬小短裙)
+                const dressGeo = new THREE.ConeGeometry(0.9, 1.8, 32);
+                const dressMat = new THREE.MeshLambertMaterial({ color: 0xffffff }); // 初始為白色
+                const dress = new THREE.Mesh(dressGeo, dressMat);
+                dress.position.y = 2.7;
+                girl.add(dress);
+
+                return { group: girl, dressMesh: dress };
+            }
+
+            // 產生 1 號模特兒：紅色長髮
+            const redGirlData = createAnimeGirl(0xef5350, true);
+            girlRed = redGirlData.group;
+            redDressMesh = redGirlData.dressMesh;
+            girlRed.position.set(-3.5, 0, 1.5);
+            scene.add(girlRed);
+
+            // 產生 2 號模特兒：紫色短髮
+            const purpleGirlData = createAnimeGirl(0x9c27b0, false);
+            girlPurple = purpleGirlData.group;
+            purpleDressMesh = purpleGirlData.dressMesh;
+            girlPurple.position.set(3.5, 0, 1.5);
+            scene.add(purpleGirlData.group);
+
+
+            // ==========================================
+            // 7. 旁邊的「豪華全身鏡」(真實 3D 立體反射)
+            // ==========================================
+            const mirrorGroup = new THREE.Group();
+            
+            // 鏡子本體高 11，寬 5.5
+            const mirrorGeo = new THREE.PlaneGeometry(5.5, 11);
+            mirrorReflector = new Reflector(mirrorGeo, {
                 clipBias: 0.003,
                 textureWidth: window.innerWidth * window.devicePixelRatio,
                 textureHeight: window.innerHeight * window.devicePixelRatio,
-                color: 0x889999, // 稍微帶點金屬色
-                recursion: 1 // 設置反射層級
+                color: 0xaaaaaa
             });
-            mirrorReflector.rotateY(Math.PI); // 轉向相機
-            mirrorReflector.position.set(15, 10, -1); // 放置在衣櫃旁邊
-            scene.add(mirrorReflector);
+            mirrorReflector.position.set(0, 5.5, 0.05);
+            mirrorGroup.add(mirrorReflector);
 
-            // 5. 實現移動和鏡子互動邏輯
-            // 使用 DragControls 允許用戶通過滑鼠拖拽模特兒 (此代碼為核心框架)
-            const objectsToDrag = [modelRed, modelPurple];
-            const dragControls = new DragControls(objectsToDrag, camera, renderer.domElement);
+            // 奢華金色雕花鏡框
+            const frameMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.2 });
+            const backFrame = new THREE.Mesh(new THREE.BoxGeometry(6, 11.5, 0.1), frameMat);
+            backFrame.position.set(0, 5.5, 0);
+            mirrorGroup.add(backFrame);
+            
+            // 將鏡子整體放到衣櫃右側，並稍微朝內傾斜，方便看見全身
+            mirrorGroup.position.set(11, 0, -1);
+            mirrorGroup.rotation.y = -Math.PI / 4; 
+            scene.add(mirrorGroup);
 
-            dragControls.addEventListener('dragstart', function (event) {
-                // 停止其他相機控制器（如果有的話）
-            });
 
-            dragControls.addEventListener('drag', function (event) {
-                const object = event.object;
-                // 限制在水平面移動
-                object.position.y = (object === modelRed ? 6 : 6); 
-
-                // --- 核心鏡子互動邏輯 ---
-                // 檢查是否在鏡子前
-                const distToMirror = Math.abs(object.position.x - mirrorReflector.position.x);
-                if (distToMirror < 6 && object.position.z > -2) {
-                    // 在鏡子前：背對相機
-                    object.rotation.y = Math.PI; 
-                } else {
-                    // 不在鏡子前：面對相機
-                    object.rotation.y = 0;
-                }
-            });
-
-            // 6. UI 按鍵事件監聽
-            document.getElementById('btnRedTops').addEventListener('click', () => changeClothing(modelRed, 'top'));
-            document.getElementById('btnRedDresses').addEventListener('click', () => changeClothing(modelRed, 'dress'));
-            document.getElementById('btnPurpleBottoms').addEventListener('click', () => changeClothing(modelPurple, 'bottom'));
-            document.getElementById('btnMoveToMirror').addEventListener('click', moveToMirror);
-        }
-
-        // 模擬換裝函數 (真正應用中需要替換Mesh)
-        function changeClothing(model, type) {
-            console.log(`為模特兒：${model.uuid} 更改：${type}`);
-            // 邏輯：從對應分類的衣服模型Mesh集中隨機選擇一個，並將其添加到模特兒附屬的衣服組中。
-            // 這裡我們只是在控制台輸出。您需要實現更換Mesh的邏輯。
-            /*
-            let group = (model === modelRed) ? redClothesMeshGroup : purpleClothesMeshGroup;
-            group.clear(); // 移除舊衣服
-            // 載入新衣服 Mesh 並添加
-            // const newClothMesh = loadMeshFor(type); 
-            // group.add(newClothMesh);
-            */
-        }
-
-        // 模擬將紫髮模特兒移動到鏡子前
-        function moveToMirror() {
-            console.log("正在移動紫髮模特兒到鏡子前...");
-            // 真正的動畫邏輯可以使用 TWEEN.js 或更新位置
-            modelPurple.position.set(15, 6, 5); 
-            modelPurple.rotation.y = Math.PI; // 背對相機
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            // 渲染場景
-            renderer.render(scene, camera);
-        }
-
-        // 處理視窗大小調整
-        window.addEventListener('resize', onWindowResize, false);
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-    </script>
-</body>
-</html>
+            // ==========================================
+            // 8. 互動邏輯：滑鼠拖拽與照鏡子偵測
+            // ==========================================
+            const dragControls = new DragControls([girlRed, girlPurple], camera, renderer.domElement);
+            
+            dragControls.addEventListener('drag',
